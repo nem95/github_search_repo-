@@ -8,8 +8,13 @@
     "start": "next start"
   },
   "dependencies": {
+    "@octokit/rest": "^18.0.6",
     "next": "9.5.3",
     "react": "16.13.1",
-    "react-dom": "16.13.1"
+    "react-dom": "16.13.1",
+    "tailwindcss": "^1.8.10"
+  },
+  "devDependencies": {
+    "postcss-preset-env": "^6.7.0"
   }
 }

@@ -1,3 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --default-dot-size: 16px;
+}
+
 html,
 body {
   padding: 0;
