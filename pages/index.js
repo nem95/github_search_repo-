@@ -1,4 +1,4 @@
-import react, { useState } from 'react';
+import { useState } from 'react';
 import { Octokit } from '@octokit/rest';
 
 import styles from '../styles/loaderAnimation.module.css';
@@ -23,23 +23,21 @@ function Home() {
     evt.preventDefault();
 
     if (owner && repo) {
+      const option = {
+        owner,
+        repo,
+        per_page: 100
+      }
       setIsLoading(true);
 
       try {
-        const { data } = await octokit.repos.get({
-          owner: owner,
-          repo: repo,
-        });
-        const res = await fetch(data.commits_url.replace('{/sha}', ''));
-        const resdata = await res.json();
+        const { data } = await octokit.repos.listCommits(option);
 
         setIsLoading(false);
-        console.log(data);
-        setCommits(resdata);
+        setCommits(data);
       } catch (error) {
         setCommits(null);
         setIsLoading(false);
-        console.log(error);
       }
     };
   }
@@ -61,7 +59,7 @@ function Home() {
         <div className="flex flex-wrap -mx-3 mb-0 md:mb-6">
           <div className="w-full md:w-1/3 px-3 mb-6 md:mb-0">
             <label className={classNames.label} htmlFor="owner">
-              GitHub User
+              Pseudo GitHub
             </label>
             <input
               type="text"
@@ -74,7 +72,7 @@ function Home() {
           </div>
           <div className="w-full md:w-1/3 px-3 d-flex">
             <label className={classNames.label} htmlFor="repo">
-              User Repository
+              Repository
             </label>
 
             <input
@@ -100,44 +98,52 @@ function Home() {
       <br />
 
       <div className="flex w-full flex-col items-center">
-        {commits && commits.map((com, i) => {
-          const { commit, committer } = com;
+        {commits && (
+          <>
+            <h1 className="text-4xl font-semibold">Les {commits.length} derniers commits</h1>
 
-          return (
-            <div className="flex w-full lg:w-1/2 my-4 items-center" key={i.toString()}>
-              <div className="md:flex-shrink-0 flex items-center mr-2">
-                <img className="rounded-lg md:w-20" src={committer.avatar_url} width="48" height="48" alt="Woman paying for a purchase" />
-              </div>
-              <div className="mt-4 md:mt-0 md:ml-6">
-                <a
-                  href={com.html_url}
-                  className={classNames.commit_message}
-                  target="_blank"
-                >
-                  {commit.message}
-                </a>
+            {commits.map((com, i) => {
+              const { commit, committer } = com;
 
-                <p className="mt-2 text-gray-600">
-                  Le {formatDate(commit.author.date)} | &nbsp;
-                  <span className="text-sm">
-                    ID: <a href={com.html_url} target="_blank" className="hover:underline break-all">{com.sha}</a>
-                  </span>
-                </p>
-              </div>
-            </div>
-          );
-        })}
+              return (
+                <div className="flex w-full lg:w-1/2 my-4 items-center" key={i.toString()}>
+                  <div className="md:flex-shrink-0 flex items-center mr-2">
+                    <img
+                      className="rounded-lg md:w-20"
+                      src={committer.avatar_url}
+                      width="48"
+                      height="48"
+                      alt="Woman paying for a purchase"
+                    />
+                  </div>
+                  <div className="mt-4 md:mt-0 md:ml-6">
+                    <a href={com.html_url} className={classNames.commit_message} target="_blank">
+                      {commit.message}
+                    </a>
+
+                    <p className="mt-2 text-gray-600">
+                      Le {formatDate(commit.author.date)} | &nbsp;
+                      <span className="text-sm">
+                        ID: <a href={com.html_url} target="_blank" className="hover:underline break-all">{com.sha}</a>
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </>
+        )}
       </div>
+
       {isLoading && (
         <div className="flex w-full items-center h-64">
           <div id={styles['wave-container']} className="wave-container w-full">
             {[...Array(10).fill(0)].map((item, i) => (
-              <div class={styles.dot} id={styles[`d${i + 1}`]}></div>
+              <div className={styles.dot} id={styles[`d${i + 1}`]} key={i.toString()} />
             ))}
           </div>
         </div>
-        )}
-
+      )}
     </div>
   )
 }
